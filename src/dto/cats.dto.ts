@@ -1,7 +1,6 @@
 export class CreateCatDto {
   name: string;
   color: string;
-  id?: number;
 }
 
 export class ListAllEntities {
@@ -11,5 +10,4 @@ export class ListAllEntities {
 export class UpdateCatDto {
   name: string;
   color: string;
-  id: number;
 }

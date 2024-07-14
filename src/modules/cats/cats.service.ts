@@ -1,39 +1,47 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCatDto, UpdateCatDto } from 'src/dto/cats.dto';
-import { Cat } from 'src/interfaces/ICat.interface';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CreateCatDto } from 'src/dto/cats.dto';
+import { Cat } from 'src/interfaces/cat.interface';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CatsService {
-  private readonly cats: Cat[] = [
-    { id: 1, name: '1', color: 'white' },
-    { id: 2, name: '2', color: 'black' },
-  ];
+  constructor(@InjectModel('Cat') private catModel: Model<Cat>) {}
 
-  create(cat: CreateCatDto) {
-    const id = this.cats.length + 1;
-    this.cats.push({ ...cat, id: id });
-    return { ...cat, id: id };
+  async findAll(): Promise<Cat[]> {
+    return this.catModel.find().exec();
   }
 
-  findAll(): Cat[] {
-    return this.cats;
+  async findOne(id: string): Promise<Cat> {
+    const cat = await this.catModel.findOne({ _id: id }).exec();
+    if (!cat) {
+      throw new NotFoundException(`Cat with ID ${id} not found`);
+    }
+    return cat;
   }
 
-  findOne(id: number) {
-    return this.cats.find((item) => item.id === id);
+  async create(createCatDto: CreateCatDto): Promise<Cat> {
+    const createdCat = new this.catModel({ catId: uuidv4(), ...createCatDto });
+    return createdCat.save();
   }
 
-  update(cat: UpdateCatDto) {
-    const index = this.cats.findIndex((item) => item.id === cat.id);
-    this.cats[index] = cat;
-    return this.cats[index];
+  async update(id: string, updateCatDto: CreateCatDto): Promise<Cat> {
+    const existingCat = await this.catModel
+      .findOneAndUpdate({ _id: id }, updateCatDto, { new: true })
+      .exec();
+    if (!existingCat) {
+      throw new NotFoundException(`Cat with ID ${id} not found`);
+    }
+    return existingCat;
   }
 
-  delete(id: number) {
-    const index = this.cats.findIndex((item) => item.id === id);
-
-    this.cats.splice(index, 1);
-
-    return `xoá thành công id ${id}`;
+  async delete(id: string): Promise<Cat> {
+    const deletedCat = await this.catModel.findOneAndDelete({ _id: id }).exec();
+    if (!deletedCat) {
+      throw new NotFoundException(`Cat with ID ${id} not found`);
+    }
+    //
+    return deletedCat;
   }
 }

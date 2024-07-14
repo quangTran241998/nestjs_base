@@ -1,115 +1,50 @@
 import {
-  Controller,
-  Get,
-  Res,
-  Query,
-  Post,
   Body,
-  Put,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Res,
 } from '@nestjs/common';
-import { Response } from 'express';
-import { Cat } from 'src/interfaces/ICat.interface';
-import { ResponseType } from '../../constant/type';
-import { ResponseData } from 'src/services/response.service';
-import { ServerMessage, ServerStatus } from 'src/constant/enum';
 import { CatsService } from './cats.service';
-import { CreateCatDto, UpdateCatDto } from 'src/dto/cats.dto';
+import { CreateCatDto } from 'src/dto/cats.dto';
+import { Cat } from 'src/interfaces/cat.interface';
+// import { ResponseType } from '../../constant/type';
+// import { ResponseData } from 'src/services/response.service';
+// import { ServerMessage, ServerStatus } from 'src/constant/enum';
+// import { Response } from 'express';
 
 @Controller('cats')
 export class CatsController {
   constructor(private readonly catsService: CatsService) {}
 
-  @Post()
-  create(
-    @Body() createCatDto: CreateCatDto,
-    @Res() res: Response,
-  ): ResponseType<Cat> {
-    try {
-      return res.json(
-        new ResponseData(
-          this.catsService.create(createCatDto),
-          ServerStatus.OK,
-          ServerMessage.OK,
-        ),
-      );
-    } catch (error) {
-      return res.json(
-        new ResponseData(null, ServerStatus.ERROR, ServerMessage.ERROR),
-      );
-    }
-  }
-
   @Get()
-  findAll(@Res() res: Response): ResponseType<Cat> {
-    try {
-      return res.json(
-        new ResponseData(
-          this.catsService.findAll(),
-          ServerStatus.OK,
-          ServerMessage.OK,
-        ),
-      );
-    } catch (error) {
-      return res.json(
-        new ResponseData(null, ServerStatus.ERROR, ServerMessage.ERROR),
-      );
-    }
+  async findAll(): Promise<Cat[]> {
+    return this.catsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number, @Res() res: Response) {
-    try {
-      return res.json(
-        new ResponseData(
-          this.catsService.findOne(id),
-          ServerStatus.OK,
-          ServerMessage.OK,
-        ),
-      );
-    } catch (error) {
-      return res.json(
-        new ResponseData(null, ServerStatus.ERROR, ServerMessage.ERROR),
-      );
-    }
+  async findOne(@Param('id') id: string): Promise<Cat> {
+    return this.catsService.findOne(id);
   }
 
-  @Put()
-  update(@Body() updateCatDto: UpdateCatDto, @Res() res: Response) {
-    try {
-      return res.json(
-        new ResponseData(
-          this.catsService.update(updateCatDto),
-          ServerStatus.OK,
-          ServerMessage.OK,
-        ),
-      );
-    } catch (error) {
-      return res.json(
-        new ResponseData(null, ServerStatus.ERROR, ServerMessage.ERROR),
-      );
-    }
+  @Post()
+  async create(@Body() createCatDto: CreateCatDto) {
+    await this.catsService.create(createCatDto);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateCatDto: CreateCatDto,
+  ): Promise<Cat> {
+    return this.catsService.update(id, updateCatDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: number, @Res() res: Response) {
-    try {
-      return res.json(
-        new ResponseData(
-          this.catsService.delete(id),
-          ServerStatus.OK,
-          ServerMessage.OK,
-        ),
-      );
-    } catch (error) {
-      return res.json(
-        new ResponseData(null, ServerStatus.ERROR, ServerMessage.ERROR),
-      );
-    }
+  async delete(@Param('id') id: string) {
+    return this.catsService.delete(id);
   }
 }
-// @Get()
-// findAll(@Query() query: ListAllEntities) {
-//   return `This action returns all cats (limit: ${query.limit} items)`;
-// }
