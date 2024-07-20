@@ -23,4 +23,5 @@ import { Schema } from 'mongoose';
 export const BannerHomeSchema = new Schema({
   title: String,
   desc: String,
+  img: String,
 });

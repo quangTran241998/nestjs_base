@@ -9,7 +9,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { BannerHomeService } from './bannerHome.service';
-import { CreateCatDto } from 'src/dto/cats.dto';
+import { CreateBannerHomeDto } from 'src/dto/bannerHome.dto';
 import { BannerHome } from 'src/interfaces/bannerHome.interface';
 import { ResponseType } from '../../constant/type';
 // import { ResponseData } from 'src/services/response.service';
@@ -26,21 +26,21 @@ export class CatsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<BannerHome> {
+  async findOne(@Param('id') id: string): Promise<ResponseType<BannerHome>> {
     return this.BannerHomeService.findOne(id);
   }
 
   @Post()
-  async create(@Body() createCatDto: CreateCatDto) {
-    await this.BannerHomeService.create(createCatDto);
+  async create(@Body() CreateBannerHomeDto: CreateBannerHomeDto) {
+    await this.BannerHomeService.create(CreateBannerHomeDto);
   }
 
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateCatDto: CreateCatDto,
+    @Body() CreateBannerHomeDto: CreateBannerHomeDto,
   ): Promise<BannerHome> {
-    return this.BannerHomeService.update(id, updateCatDto);
+    return this.BannerHomeService.update(id, CreateBannerHomeDto);
   }
 
   @Delete(':id')
@@ -48,15 +48,3 @@ export class CatsController {
     return this.BannerHomeService.delete(id);
   }
 }
-// @Get()
-// async findAll(@Res() res: Response) {
-//   try {
-//     return res.json(
-//       new ResponseData(
-//         this.BannerHomeService.findAll(),
-//         ServerStatus.OK,
-//         ServerMessage.OK,
-//       ),
-//     );
-//   } catch {}
-// }
