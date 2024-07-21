@@ -16,7 +16,7 @@ export class CatsService {
     const query = this.buildSearchQuery(searchCriteria);
     try {
       const page = pageParam ?? 1;
-      const limit = size ?? 10;
+      const limit = size ?? 1000;
 
       const offset = (page - 1) * limit;
 

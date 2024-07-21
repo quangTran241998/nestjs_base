@@ -9,19 +9,25 @@ import {
   Res,
   Query,
   UseGuards,
+  Headers,
 } from '@nestjs/common';
 import { CatsService } from './cats.service';
 import { CreateCatDto, GetCatsDto } from 'src/dto/cats.dto';
 import { Cat } from 'src/interfaces/cat.interface';
 import { ResponseType } from '../../constant/type';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { Role } from '../auth/roles/roles.enum';
+import { RolesGuard } from '../auth/roles/roles.guard';
 
 @Controller('cats')
+@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class CatsController {
   constructor(private readonly catsService: CatsService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin)
   async findAll(@Query() GetCatsDto: GetCatsDto): Promise<ResponseType<Cat[]>> {
     return this.catsService.findAll(GetCatsDto);
   }

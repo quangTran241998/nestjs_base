@@ -1,3 +1,4 @@
+import { IsString, IsOptional } from 'class-validator';
 import { PaginationDto } from './common.dto';
 
 export class CreateCatDto {
@@ -11,6 +12,10 @@ export class UpdateCatDto {
 }
 
 export class GetCatsDto extends PaginationDto {
+  @IsOptional()
+  @IsString()
   name?: string;
+  @IsOptional()
+  @IsString()
   color?: string;
 }
