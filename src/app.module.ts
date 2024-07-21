@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CatsModule } from './modules/cats/cats.module';
-import { jwtConstants } from './constant/common';
-import { JwtModule } from '@nestjs/jwt';
-import { MongooseModule } from '@nestjs/mongoose';
-import { BannerHomeModule } from './modules/banner-home/bannerHome.module';
 import { FilesModule } from './file/file.module';
 import { ArticleModule } from './modules/article/article.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { BannerHomeModule } from './modules/banner-home/bannerHome.module';
+import { CatsModule } from './modules/cats/cats.module';
+import { UsersModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -18,11 +18,8 @@ import { ArticleModule } from './modules/article/article.module';
     BannerHomeModule,
     ArticleModule,
     FilesModule,
-    JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: 900000 },
-    }),
+    UsersModule,
+    AuthModule,
   ],
 
   controllers: [AppController],

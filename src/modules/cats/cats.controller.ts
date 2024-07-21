@@ -7,22 +7,23 @@ import {
   Post,
   Put,
   Res,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CatsService } from './cats.service';
-import { CreateCatDto } from 'src/dto/cats.dto';
+import { CreateCatDto, GetCatsDto } from 'src/dto/cats.dto';
 import { Cat } from 'src/interfaces/cat.interface';
-// import { ResponseType } from '../../constant/type';
-// import { ResponseData } from 'src/services/response.service';
-// import { ServerMessage, ServerStatus } from 'src/constant/enum';
-// import { Response } from 'express';
+import { ResponseType } from '../../constant/type';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('cats')
 export class CatsController {
   constructor(private readonly catsService: CatsService) {}
 
   @Get()
-  async findAll(): Promise<Cat[]> {
-    return this.catsService.findAll();
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Query() GetCatsDto: GetCatsDto): Promise<ResponseType<Cat[]>> {
+    return this.catsService.findAll(GetCatsDto);
   }
 
   @Get(':id')

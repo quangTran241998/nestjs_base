@@ -8,7 +8,9 @@ import { CreateBannerHomeDto } from 'src/dto/bannerHome.dto';
 
 @Injectable()
 export class BannerHomeService {
-  constructor(@InjectModel('Banner home') private bannerHome: Model<BannerHome>) {}
+  constructor(
+    @InjectModel('Banner home') private bannerHome: Model<BannerHome>,
+  ) {}
 
   async findAll(): Promise<ResponseType<BannerHome[]>> {
     try {
@@ -56,8 +58,13 @@ export class BannerHomeService {
     return createdCat.save();
   }
 
-  async update(id: string, updateCatDto: CreateBannerHomeDto): Promise<BannerHome> {
-    const existingCat = await this.bannerHome.findOneAndUpdate({ _id: id }, updateCatDto, { new: true }).exec();
+  async update(
+    id: string,
+    updateCatDto: CreateBannerHomeDto,
+  ): Promise<BannerHome> {
+    const existingCat = await this.bannerHome
+      .findOneAndUpdate({ _id: id }, updateCatDto, { new: true })
+      .exec();
     if (!existingCat) {
       throw new NotFoundException(`Cat with ID ${id} not found`);
     }
@@ -65,7 +72,9 @@ export class BannerHomeService {
   }
 
   async delete(id: string): Promise<BannerHome> {
-    const deletedCat = await this.bannerHome.findOneAndDelete({ _id: id }).exec();
+    const deletedCat = await this.bannerHome
+      .findOneAndDelete({ _id: id })
+      .exec();
     if (!deletedCat) {
       throw new NotFoundException(`Cat with ID ${id} not found`);
     }
