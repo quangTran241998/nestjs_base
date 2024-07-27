@@ -12,7 +12,7 @@ import {
   Headers,
 } from '@nestjs/common';
 import { CatsService } from './cats.service';
-import { CreateCatDto, GetCatsDto } from 'src/dto/cats.dto';
+import { CreateCatDto, GetCatsDto, UpdateCatDto } from 'src/dto/cats.dto';
 import { Cat } from 'src/interfaces/cat.interface';
 import { ResponseType } from '../../constant/type';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -26,7 +26,7 @@ export class CatsController {
   constructor(private readonly catsService: CatsService) {}
 
   @Get()
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.User)
   async findAll(@Query() GetCatsDto: GetCatsDto): Promise<ResponseType<Cat[]>> {
     return this.catsService.findAll(GetCatsDto);
   }
@@ -44,13 +44,13 @@ export class CatsController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateCatDto: CreateCatDto,
-  ): Promise<Cat> {
+    @Body() updateCatDto: UpdateCatDto,
+  ): Promise<ResponseType<Cat>> {
     return this.catsService.update(id, updateCatDto);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string): Promise<ResponseType<Cat>> {
     return this.catsService.delete(id);
   }
 }

@@ -1,11 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ServerMessage, ServerStatus } from 'src/constant/enum';
-import { CreateCatDto, GetCatsDto } from 'src/dto/cats.dto';
+import { CreateCatDto, GetCatsDto, UpdateCatDto } from 'src/dto/cats.dto';
 import { Cat } from 'src/interfaces/cat.interface';
 import { v4 as uuidv4 } from 'uuid';
 import { ResponseType } from '../../constant/type';
+import { ResponseData } from 'src/services/response.service';
 
 @Injectable()
 export class CatsService {
@@ -25,20 +31,9 @@ export class CatsService {
         this.catModel.countDocuments(query).exec(),
       ]);
 
-      return {
-        statusCode: ServerStatus.OK,
-        message: ServerMessage.OK,
-        result: {
-          data: data,
-          total: count,
-        },
-      };
+      return new ResponseData(data, ServerStatus.OK, ServerMessage.OK, count);
     } catch {
-      return {
-        statusCode: ServerStatus.ERROR,
-        message: ServerMessage.ERROR,
-        result: {},
-      };
+      throw new InternalServerErrorException();
     }
   }
 
@@ -50,27 +45,40 @@ export class CatsService {
     return cat;
   }
 
-  async create(createCatDto: CreateCatDto): Promise<Cat> {
+  async create(createCatDto: CreateCatDto): Promise<ResponseType<Cat>> {
     const createdCat = new this.catModel({ catId: uuidv4(), ...createCatDto });
-    return createdCat.save();
+    return new ResponseData(
+      createdCat.save(),
+      ServerStatus.OK,
+      ServerMessage.OK,
+    );
   }
 
-  async update(id: string, updateCatDto: CreateCatDto): Promise<Cat> {
-    const existingCat = await this.catModel
-      .findOneAndUpdate({ _id: id }, updateCatDto, { new: true })
-      .exec();
-    if (!existingCat) {
+  async update(
+    id: string,
+    updateCatDto: UpdateCatDto,
+  ): Promise<ResponseType<Cat>> {
+    try {
+      const existingCat = await this.catModel
+        .findOneAndUpdate({ _id: id }, updateCatDto, { new: true })
+        .exec();
+
+      return new ResponseData(existingCat, ServerStatus.OK, ServerMessage.OK);
+    } catch {
       throw new NotFoundException(`Cat with ID ${id} not found`);
     }
-    return existingCat;
   }
 
-  async delete(id: string): Promise<Cat> {
-    const deletedCat = await this.catModel.findOneAndDelete({ _id: id }).exec();
-    if (!deletedCat) {
+  async delete(id: string): Promise<ResponseType<Cat>> {
+    try {
+      const deletedCat = await this.catModel
+        .findOneAndDelete({ _id: id })
+        .exec();
+
+      return new ResponseData(deletedCat, ServerStatus.OK, ServerMessage.OK);
+    } catch {
       throw new NotFoundException(`Cat with ID ${id} not found`);
     }
-    return deletedCat;
   }
 
   private buildSearchQuery(searchCriteria: Partial<GetCatsDto>) {

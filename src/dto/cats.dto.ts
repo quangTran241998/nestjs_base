@@ -7,7 +7,11 @@ export class CreateCatDto {
 }
 
 export class UpdateCatDto {
+  @IsOptional()
+  @IsString()
   name: string;
+  @IsOptional()
+  @IsString()
   color: string;
 }
 
