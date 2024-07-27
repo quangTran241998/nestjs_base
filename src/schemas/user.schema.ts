@@ -1,12 +1,13 @@
 import { Role } from './../modules/auth/roles/roles.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import * as mongooseUniqueValidator from 'mongoose-unique-validator';
 
 export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-  @Prop({ unique: true })
+  @Prop({ required: true, unique: true })
   username: string;
 
   @Prop()
@@ -20,6 +21,22 @@ export class User {
 
   @Prop({ default: Date.now })
   createdAt: Date;
+
+  @Prop({ default: null })
+  updateAt: Date;
+
+  @Prop({ default: null })
+  phoneNumber: string;
+
+  @Prop({ default: null })
+  email: string;
+
+  @Prop({ default: null })
+  address: string;
+
+  @Prop({ default: null })
+  age: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.plugin(mongooseUniqueValidator, { message: 'Tài khoản đã tồn tại' });

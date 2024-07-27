@@ -70,7 +70,6 @@ export class CatsService {
     if (!deletedCat) {
       throw new NotFoundException(`Cat with ID ${id} not found`);
     }
-    //
     return deletedCat;
   }
 

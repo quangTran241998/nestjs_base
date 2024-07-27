@@ -25,4 +25,12 @@ module.exports = {
     '@typescript-eslint/ban-types': 'off',
     '@ts-expect-error': 'off',
   },
+
+  'prettier/prettier': [
+    'error',
+    {},
+    {
+      usePrettierrc: false,
+    },
+  ],
 };

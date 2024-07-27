@@ -1,5 +1,11 @@
 // src/users/dto/create-user.dto.ts
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { Role } from 'src/modules/auth/roles/roles.enum';
 
 export class CreateUserDto {
@@ -23,4 +29,26 @@ export class LoginUserDto {
 
   @IsString()
   password: string;
+}
+
+export class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  phoneNumber: string;
+
+  @IsOptional()
+  @IsString()
+  email: string;
+
+  @IsOptional()
+  @IsString()
+  address: string;
+
+  @IsOptional()
+  @IsNumber()
+  age: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive: boolean;
 }

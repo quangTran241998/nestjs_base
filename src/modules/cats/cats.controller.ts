@@ -18,7 +18,6 @@ import { ResponseType } from '../../constant/type';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { Role } from '../auth/roles/roles.enum';
-import { RolesGuard } from '../auth/roles/roles.guard';
 
 @Controller('cats')
 @UseGuards(JwtAuthGuard)

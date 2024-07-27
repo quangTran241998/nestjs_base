@@ -1,15 +1,16 @@
 // src/auth/roles/roles.guard.ts
 import {
-  Injectable,
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
+import { jwtConstants } from 'src/constant/common';
 import { ROLES_KEY } from './roles.decorator';
 import { Role } from './roles.enum';
-import { jwtConstants } from 'src/constant/common';
-import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -38,14 +39,13 @@ export class RolesGuard implements CanActivate {
       const decoded = this.jwtService.verify(token, {
         secret: jwtConstants.secret,
       });
+
       console.log(decoded);
 
       const userRoles = decoded.roles;
-      console.log(userRoles);
-
       return requiredRoles.some((role) => userRoles.includes(role));
     } catch (error) {
-      throw new UnauthorizedException('Invalid token');
+      throw new ForbiddenException();
     }
   }
 }

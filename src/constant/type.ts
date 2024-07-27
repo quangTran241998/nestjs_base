@@ -1,6 +1,6 @@
 export type ResponseType<D> = {
-  statusCode?: number;
-  message?: string;
+  statusCode: number;
+  message: string;
   result: {
     data?: D | D[] | {};
     total?: number;

@@ -1,3 +1,4 @@
+import { ProfileModule } from './modules/user/profile/profile.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
@@ -20,6 +21,7 @@ import { UsersModule } from './modules/user/user.module';
     FilesModule,
     UsersModule,
     AuthModule,
+    ProfileModule,
   ],
 
   controllers: [AppController],
