@@ -10,6 +10,9 @@ export class User {
   @Prop({ required: true, unique: true })
   username: string;
 
+  @Prop({ required: true, unique: true })
+  email: string;
+
   @Prop()
   password: string;
 
@@ -27,9 +30,6 @@ export class User {
 
   @Prop({ default: null })
   phoneNumber: string;
-
-  @Prop({ default: null })
-  email: string;
 
   @Prop({ default: null })
   address: string;

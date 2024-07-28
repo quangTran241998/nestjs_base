@@ -1,11 +1,16 @@
 // src/users/dto/create-user.dto.ts
-import { IsBoolean, IsNumber, IsOptional, IsString, MinLength, IsEmpty, ValidateIf, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, MinLength, IsEmail, ValidateIf, IsNotEmpty } from 'class-validator';
 import { Role } from 'src/modules/auth/roles/roles.enum';
 
 export class CreateUserDto {
   @IsString()
   @MinLength(4)
   username: string;
+
+  @IsString()
+  @MinLength(6)
+  @IsEmail()
+  email: string;
 
   @IsString()
   @MinLength(6)
