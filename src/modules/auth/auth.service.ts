@@ -29,10 +29,7 @@ export class AuthService {
   }
 
   async login(loginUserDto: LoginUserDto) {
-    const user = await this.validateUser(
-      loginUserDto.username,
-      loginUserDto.password,
-    );
+    const user = await this.validateUser(loginUserDto.username, loginUserDto.password);
 
     if (!user) {
       throw new UnauthorizedException();
@@ -40,13 +37,41 @@ export class AuthService {
 
     const payload = {
       username: user.username,
-      sub: user._id,
+      id: user._id,
       roles: user.roles,
       isActive: user?.isActive,
     };
+
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '30d' });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken,
+      refreshToken,
     };
+  }
+
+  async refreshToken(refreshToken: string) {
+    try {
+      const decode = await this.jwtService.verify(refreshToken);
+      const payload = {
+        username: decode.username,
+        id: decode._id,
+        roles: decode.roles,
+        isActive: decode?.isActive,
+      };
+      if (payload) {
+        const accessToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+        const refreshToken = this.jwtService.sign(payload, { expiresIn: '30d' });
+
+        return {
+          accessToken,
+          refreshToken,
+        };
+      }
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 
   decodeToken(token: string): any {

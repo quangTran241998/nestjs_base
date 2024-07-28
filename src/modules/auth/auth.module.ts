@@ -16,7 +16,7 @@ import { RolesGuard } from './roles/roles.guard';
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60m' },
+      // signOptions: { expiresIn: '60m' },
     }),
   ],
   providers: [

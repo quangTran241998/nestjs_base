@@ -7,7 +7,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto, LoginUserDto } from 'src/dto/user.dto';
+import { CreateUserDto, LoginUserDto, RefreshTokenDto } from 'src/dto/user.dto';
 import { UsersService } from '../user/user.service';
 
 @Controller('auth')
@@ -25,5 +25,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Post('refreshToken')
+  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    const { refreshToken } = refreshTokenDto;
+    return this.authService.refreshToken(refreshToken);
   }
 }
