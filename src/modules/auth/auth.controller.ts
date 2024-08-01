@@ -1,11 +1,5 @@
 // src/auth/auth.controller.ts
-import {
-  Controller,
-  Post,
-  Body,
-  ValidationPipe,
-  UsePipes,
-} from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, UsePipes, Get, Query, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto, RefreshTokenDto } from 'src/dto/user.dto';
 import { UsersService } from '../user/user.service';
@@ -16,6 +10,24 @@ export class AuthController {
     private authService: AuthService,
     private usersService: UsersService,
   ) {}
+
+  @Get('testToken')
+  async testToken(@Query('token') token: string) {
+    const decode = await this.authService.verifyToken(token);
+    return decode;
+  }
+
+  @Get('confirm')
+  async verifyEmail(@Query('token') token: string) {
+    const decode = await this.authService.verifyToken(token);
+    const user = await this.usersService.findOneEmail(decode.email);
+
+    if (user) {
+      return this.usersService.update(user._id, { isEmailVerified: true, isActive: true });
+    } else {
+      throw new UnauthorizedException();
+    }
+  }
 
   @Post('signup')
   async signUp(@Body() createUserDto: CreateUserDto) {

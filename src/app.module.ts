@@ -20,6 +20,7 @@ import { MailModule } from './modules/mail/mail.module';
     FilesModule,
     AuthModule,
     ProfileModule,
+    UsersModule,
   ],
 
   controllers: [AppController],

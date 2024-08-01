@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MailerService } from './mail.service';
-import { AuthService } from '../auth/auth.service';
-import { JwtService } from '@nestjs/jwt';
+import { UsersModule } from '../user/user.module';
 import { UsersService } from '../user/user.service';
-// import { AuthModule } from '../auth/auth.module';
+import { MailerService } from './mail.service';
 
 @Module({
-  imports: [],
+  imports: [UsersModule],
   controllers: [],
   providers: [MailerService, UsersService],
   exports: [MailerService],

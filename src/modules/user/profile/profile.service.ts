@@ -15,17 +15,13 @@ export class ProfileService {
   async getProfileUser(token: string) {
     const decode = await this.jwtService.decode(token);
     const username = decode.username;
-    console.log(token, decode, username);
 
     const user = this.usersService.findOne(username);
 
     return user;
   }
 
-  async updateProfile(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<ResponseType<IUser>> {
+  async updateProfile(id: string, updateUserDto: UpdateUserDto): Promise<ResponseType<IUser>> {
     return this.usersService.update(id, updateUserDto);
   }
 

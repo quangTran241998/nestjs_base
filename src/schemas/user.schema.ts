@@ -34,7 +34,7 @@ export class User {
   @Prop({ default: null })
   age: number;
 
-  @Prop({ default: true })
+  @Prop({ default: false })
   isActive: boolean;
 
   @Prop({ default: false })

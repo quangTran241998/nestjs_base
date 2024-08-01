@@ -1,5 +1,5 @@
 // src/auth/auth.service.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../user/user.service';
@@ -7,16 +7,22 @@ import { LoginUserDto } from 'src/dto/user.dto';
 import { IUser } from 'src/interfaces/user.interface';
 import { PayloadToken } from 'src/constant/type';
 import { jwtConstants } from 'src/constant/common';
+import { MailerService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<IUser> {
     const user: IUser = await this.usersService.findOne(username);
+
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('You not verify email');
+    }
 
     if (!user.isActive) {
       throw new UnauthorizedException('Account is locked');
@@ -81,7 +87,7 @@ export class AuthService {
   }
 
   generateToken(payload: any, expiresIn?: string) {
-    return this.jwtService.sign(payload, { expiresIn: expiresIn ?? '30m' });
+    return this.jwtService.sign(payload, { secret: jwtConstants.secret, expiresIn: expiresIn ?? '30m' });
   }
 
   decodeToken(token: string) {
