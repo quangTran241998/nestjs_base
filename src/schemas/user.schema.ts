@@ -19,9 +19,6 @@ export class User {
   @Prop({ enum: [Role.User, Role.Admin], default: Role.User })
   roles: string;
 
-  @Prop({ default: true })
-  isActive: boolean;
-
   @Prop({ default: Date.now })
   createdAt: Date;
 
@@ -36,6 +33,12 @@ export class User {
 
   @Prop({ default: null })
   age: number;
+
+  @Prop({ default: true })
+  isActive: boolean;
+
+  @Prop({ default: false })
+  isEmailVerified: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

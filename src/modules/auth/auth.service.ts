@@ -5,6 +5,8 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from '../user/user.service';
 import { LoginUserDto } from 'src/dto/user.dto';
 import { IUser } from 'src/interfaces/user.interface';
+import { PayloadToken } from 'src/constant/type';
+import { jwtConstants } from 'src/constant/common';
 
 @Injectable()
 export class AuthService {
@@ -40,10 +42,12 @@ export class AuthService {
       id: user._id,
       roles: user.roles,
       isActive: user?.isActive,
+      isEmailVerified: user.isEmailVerified,
+      email: user.email,
     };
 
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '7d' });
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '30d' });
+    const accessToken = this.jwtService.sign(payload, { secret: jwtConstants.secret, expiresIn: '7d' });
+    const refreshToken = this.jwtService.sign(payload, { secret: jwtConstants.secret, expiresIn: '30d' });
 
     return {
       accessToken,
@@ -59,6 +63,8 @@ export class AuthService {
         id: decode._id,
         roles: decode.roles,
         isActive: decode?.isActive,
+        isEmailVerified: decode.isEmailVerified,
+        email: decode.email,
       };
       if (payload) {
         const accessToken = this.jwtService.sign(payload, { expiresIn: '7d' });
@@ -74,7 +80,19 @@ export class AuthService {
     }
   }
 
-  decodeToken(token: string): any {
+  generateToken(payload: any, expiresIn?: string) {
+    return this.jwtService.sign(payload, { expiresIn: expiresIn ?? '30m' });
+  }
+
+  decodeToken(token: string) {
     return this.jwtService.decode(token);
+  }
+
+  verifyToken(token: string): Promise<PayloadToken> {
+    return this.jwtService.verify(token, { secret: jwtConstants.secret });
+  }
+
+  tests() {
+    return 'test';
   }
 }

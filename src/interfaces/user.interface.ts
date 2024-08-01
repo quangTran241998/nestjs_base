@@ -13,4 +13,5 @@ export interface IUser {
   age: number;
   password?: string;
   _id: string;
+  isEmailVerified: boolean;
 }

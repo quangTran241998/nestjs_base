@@ -9,17 +9,15 @@ import { AuthModule } from './modules/auth/auth.module';
 import { BannerHomeModule } from './modules/banner-home/bannerHome.module';
 import { CatsModule } from './modules/cats/cats.module';
 import { UsersModule } from './modules/user/user.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      process.env.MONGODB_URI ?? 'mongodb://localhost:27017/test',
-    ),
+    MongooseModule.forRoot(process.env.MONGODB_URI ?? 'mongodb://localhost:27017/test'),
     CatsModule,
     BannerHomeModule,
     ArticleModule,
     FilesModule,
-    UsersModule,
     AuthModule,
     ProfileModule,
   ],

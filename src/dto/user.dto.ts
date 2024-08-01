@@ -33,23 +33,27 @@ export class LoginUserDto {
 export class UpdateUserDto {
   @IsOptional()
   @IsString()
-  phoneNumber: string;
+  phoneNumber?: string;
 
   @IsOptional()
   @IsString()
-  email: string;
+  email?: string;
 
   @IsOptional()
   @IsString()
-  address: string;
+  address?: string;
 
   @IsOptional()
   @IsNumber()
-  age: number;
+  age?: number;
 
   @IsOptional()
   @IsBoolean()
-  isActive: boolean;
+  isActive?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isEmailVerified?: boolean;
 }
 
 export class RefreshTokenDto {
