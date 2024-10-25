@@ -1,10 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
-import { CreateBannerHomeDto } from 'src/dto/bannerHome.dto';
-import { BannerHome } from 'src/interfaces/bannerHome.interface';
-import { ResponseType } from '../../constant/type';
-import { ArticleService } from './article.service';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { CreateArticleDto } from 'src/dto/article.dto';
 import { Article } from 'src/interfaces/article.interface';
+import { ResponseType } from '../../constant/type';
+import { ArticleService } from './article.service';
 
 @Controller('article')
 export class ArticleController {
