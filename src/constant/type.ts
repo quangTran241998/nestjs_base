@@ -1,4 +1,4 @@
-import { Role } from 'src/modules/auth/roles/roles.enum';
+import { ROLE } from 'src/modules/auth/roles/roles.enum';
 
 export type ResponseType<D> = {
   statusCode: number;
@@ -17,7 +17,7 @@ export type MetaParams = {
 export type PayloadToken = {
   username: string;
   id: string;
-  roles: Role[];
+  role: ROLE[];
   isActive: boolean;
   isEmailVerified: boolean;
   email: string;

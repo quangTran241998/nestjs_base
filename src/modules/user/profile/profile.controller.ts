@@ -1,18 +1,10 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Headers,
-  Param,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, Put, UseGuards } from '@nestjs/common';
 import { UpdateUserDto } from 'src/dto/user.dto';
-import { User } from '../../../schemas/user.schema';
-import { ResponseType } from 'src/constant/type';
-import { ProfileService } from './profile.service';
+import { ResponseCommon } from 'src/interfaces/common';
+import { IUser } from 'src/interfaces/user.interface';
 import { JwtAuthGuard } from 'src/modules/auth/jwt-auth.guard';
+import { ProfileService } from './profile.service';
+import { User } from 'src/schemas/user.schema';
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
@@ -26,10 +18,7 @@ export class ProfileController {
   }
 
   @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<ResponseType<User>> {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<ResponseCommon<User>> {
     return this.profileService.updateProfile(id, updateUserDto);
   }
 

@@ -13,17 +13,18 @@ export class AuthController {
 
   @Get('testToken')
   async testToken(@Query('token') token: string) {
-    const decode = await this.authService.verifyToken(token);
+    const decode = await this.authService.decodeToken(token);
     return decode;
   }
 
   @Get('confirm')
   async verifyEmail(@Query('token') token: string) {
-    const decode = await this.authService.verifyToken(token);
+    const decode = await this.authService.decodeToken(token);
     const user = await this.usersService.findOneEmail(decode.email);
 
     if (user) {
-      return this.usersService.update(user._id, { isEmailVerified: true, isActive: true });
+      //@ts-ignore
+      return this.usersService.update(user.data._id, { isEmailVerified: true, isActive: true });
     } else {
       throw new UnauthorizedException();
     }

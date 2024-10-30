@@ -6,10 +6,12 @@ import { AuthModule } from '../auth/auth.module';
 import { MailModule } from '../mail/mail.module';
 import { MailerService } from '../mail/mail.service';
 import { AuthService } from '../auth/auth.service';
+import { UsersController } from './user.controller';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), forwardRef(() => AuthModule)],
   providers: [UsersService, MailerService],
   exports: [UsersService],
+  controllers: [UsersController],
 })
 export class UsersModule {}

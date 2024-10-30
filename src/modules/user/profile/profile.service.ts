@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ResponseType } from 'src/constant/type';
 import { UpdateUserDto } from 'src/dto/user.dto';
-import { IUser } from 'src/interfaces/user.interface';
+import { ResponseCommon } from 'src/interfaces/common';
+import { User } from 'src/schemas/user.schema';
 import { UsersService } from '../user.service';
 
 @Injectable()
@@ -21,11 +21,11 @@ export class ProfileService {
     return user;
   }
 
-  async updateProfile(id: string, updateUserDto: UpdateUserDto): Promise<ResponseType<IUser>> {
+  async updateProfile(id: string, updateUserDto: UpdateUserDto): Promise<ResponseCommon<User>> {
     return this.usersService.update(id, updateUserDto);
   }
 
-  async deleteProfile(id: string): Promise<ResponseType<IUser>> {
+  async deleteProfile(id: string): Promise<ResponseCommon<User>> {
     return this.usersService.delete(id);
   }
 }

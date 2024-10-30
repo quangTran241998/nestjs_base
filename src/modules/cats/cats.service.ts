@@ -1,93 +1,88 @@
-import {
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ServerMessage, ServerStatus } from 'src/constant/enum';
-import { CreateCatDto, GetCatsDto, UpdateCatDto } from 'src/dto/cats.dto';
-import { Cat } from 'src/interfaces/cat.interface';
-import { v4 as uuidv4 } from 'uuid';
-import { ResponseType } from '../../constant/type';
-import { ResponseData } from 'src/services/response.service';
+import { CreateCatDto, ParamsCats, UpdateCatDto } from 'src/dto/cats.dto';
+import { ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
+import { ResponseHelper } from 'src/services/response.service';
+import { Cat, CatDocument } from 'src/schemas/cats.schema';
 
 @Injectable()
 export class CatsService {
-  constructor(@InjectModel('Cat') private catModel: Model<Cat>) {}
+  constructor(@InjectModel('Cat') private catModel: Model<CatDocument>) {}
 
-  async findAll(filters: GetCatsDto): Promise<ResponseType<Cat[]>> {
-    const { page: pageParam, size, ...searchCriteria } = filters;
+  async findAll(filters: ParamsCats, userId: string): Promise<ResponseCommon<ResponseDataListCommon<Cat[]>>> {
+    const { page: pageParam, size: sizeParam, ...searchCriteria } = filters;
     const query = this.buildSearchQuery(searchCriteria);
+
+    query['userId'] = userId;
+
     try {
       const page = pageParam ?? 1;
-      const limit = size ?? 1000;
+      const size = sizeParam ?? 10;
 
-      const offset = (page - 1) * limit;
+      const offset = (page - 1) * size;
 
       const [data, count] = await Promise.all([
-        this.catModel.find(query).skip(offset).limit(limit).exec(),
+        this.catModel.find(query).skip(offset).limit(size).exec(),
         this.catModel.countDocuments(query).exec(),
       ]);
-
-      return new ResponseData(data, ServerStatus.OK, ServerMessage.OK, count);
+      return ResponseHelper.success({
+        data: data,
+        page: page,
+        size: size,
+        total: count,
+      });
     } catch {
-      throw new InternalServerErrorException();
+      throw ResponseHelper.error(`Đã có lỗi xảy ra`);
     }
   }
 
-  async findOne(id: string): Promise<Cat> {
-    const cat = await this.catModel.findOne({ _id: id }).exec();
-    if (!cat) {
-      throw new NotFoundException(`Cat with ID ${id} not found`);
+  async findOne(id: string): Promise<ResponseCommon<Cat>> {
+    const catDetails = await this.catModel.findOne({ _id: id }).exec();
+    if (!catDetails) {
+      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
     }
-    return cat;
+    return ResponseHelper.success(catDetails);
   }
 
-  async create(createCatDto: CreateCatDto): Promise<ResponseType<Cat>> {
-    const createdCat = new this.catModel({ catId: uuidv4(), ...createCatDto });
-    return new ResponseData(
-      createdCat.save(),
-      ServerStatus.OK,
-      ServerMessage.OK,
-    );
-  }
-
-  async update(
-    id: string,
-    updateCatDto: UpdateCatDto,
-  ): Promise<ResponseType<Cat>> {
+  async create(createCatDto: CreateCatDto, userId: string): Promise<ResponseCommon<Cat>> {
     try {
-      const existingCat = await this.catModel
-        .findOneAndUpdate({ _id: id }, updateCatDto, { new: true })
-        .exec();
-
-      return new ResponseData(existingCat, ServerStatus.OK, ServerMessage.OK);
+      const createdCat = new this.catModel({ ...createCatDto, userId: userId });
+      await createdCat.save();
+      return ResponseHelper.success(createdCat);
     } catch {
-      throw new NotFoundException(`Cat with ID ${id} not found`);
+      throw ResponseHelper.error(`Đã có lỗi xảy ra`);
     }
   }
 
-  async delete(id: string): Promise<ResponseType<Cat>> {
+  async update(id: string, updateCatDto: UpdateCatDto): Promise<ResponseCommon<Cat>> {
     try {
-      const deletedCat = await this.catModel
-        .findOneAndDelete({ _id: id })
-        .exec();
+      const catUpdate = await this.catModel.findOneAndUpdate({ _id: id }, updateCatDto, { new: true }).exec();
 
-      return new ResponseData(deletedCat, ServerStatus.OK, ServerMessage.OK);
+      return ResponseHelper.success(catUpdate);
     } catch {
-      throw new NotFoundException(`Cat with ID ${id} not found`);
+      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
     }
   }
 
-  private buildSearchQuery(searchCriteria: Partial<GetCatsDto>) {
+  async delete(id: string): Promise<ResponseCommon<Cat>> {
+    try {
+      const catDelete = await this.catModel.findOneAndDelete({ _id: id }).exec();
+
+      return ResponseHelper.success(catDelete);
+    } catch {
+      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
+    }
+  }
+
+  //search params
+  private buildSearchQuery(searchCriteria: Partial<ParamsCats>) {
     const query: any = {};
     if (searchCriteria.name) {
-      query.name = { $regex: searchCriteria.name, $options: 'i' }; // case-insensitive search
+      query.name = { $regex: searchCriteria.name, $options: 'i' };
     }
     if (searchCriteria.color) {
-      query.description = { $regex: searchCriteria.color, $options: 'i' }; // case-insensitive search
+      query.color = { $regex: searchCriteria.color, $options: 'i' };
     }
     return query;
   }

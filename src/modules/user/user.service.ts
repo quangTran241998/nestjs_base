@@ -5,18 +5,15 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
   forwardRef,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
-import { ServerMessage } from 'src/constant/enum';
-import { CreateUserDto, UpdateUserDto } from 'src/dto/user.dto';
-import { IUser } from 'src/interfaces/user.interface';
-import { User } from 'src/schemas/user.schema';
-import { ResponseData } from 'src/services/response.service';
-import { ResponseType } from '../../constant/type';
+import { CreateUserDto, ParamsUserDto, UpdateUserDto } from 'src/dto/user.dto';
+import { ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
+import { User, UserDocument } from 'src/schemas/user.schema';
+import { ResponseHelper } from 'src/services/response.service';
 import { AuthService } from '../auth/auth.service';
 import { MailerService } from '../mail/mail.service';
 
@@ -26,19 +23,44 @@ export class UsersService {
     @InjectModel(User.name)
     @Inject(forwardRef(() => AuthService))
     @Inject(forwardRef(() => MailerService))
-    private userModel: Model<IUser>,
+    private userModel: Model<UserDocument>,
     private authService: AuthService,
     private mailerService: MailerService,
   ) {}
+
+  async findAll(filters: ParamsUserDto): Promise<ResponseCommon<ResponseDataListCommon<User[]>>> {
+    const { page: pageParam, size: sizeParam, ...searchCriteria } = filters;
+    const query = this.buildSearchQuery(searchCriteria);
+
+    try {
+      const page = pageParam ?? 1;
+      const size = sizeParam ?? 10;
+
+      const offset = (page - 1) * size;
+
+      const [data, count] = await Promise.all([
+        this.userModel.find(query).skip(offset).limit(size).exec(),
+        this.userModel.countDocuments(query).exec(),
+      ]);
+      return ResponseHelper.success({
+        data: data,
+        page: page,
+        size: size,
+        total: count,
+      });
+    } catch {
+      throw ResponseHelper.error(`Đã có lỗi xảy ra`);
+    }
+  }
 
   async create(createUserDto: CreateUserDto): Promise<{ urlConfirm: string }> {
     const { email, username } = createUserDto;
     const isCheckUserExit = await this.findOne(username);
     const isCheckEmailExit = await this.findOneEmail(email);
 
-    if (isCheckUserExit) {
+    if (isCheckUserExit.data) {
       throw new HttpException('Tài khoản đã tồn tại', HttpStatus.BAD_REQUEST);
-    } else if (isCheckEmailExit) {
+    } else if (isCheckEmailExit.data) {
       throw new HttpException('Email đã tồn tại', HttpStatus.BAD_REQUEST);
     } else {
       const salt = await bcrypt.genSalt();
@@ -58,32 +80,57 @@ export class UsersService {
     }
   }
 
-  async findOne(username: string): Promise<IUser> {
-    return await this.userModel.findOne({ username }).exec();
+  async findOne(username: string): Promise<ResponseCommon<User>> {
+    try {
+      const userDetails = await this.userModel.findOne({ username }).exec();
+      return ResponseHelper.success(userDetails);
+    } catch {
+      throw ResponseHelper.error(`Không tìm thấy user name ${username}`);
+    }
   }
 
-  async findOneEmail(email: string): Promise<IUser> {
-    return await this.userModel.findOne({ email }).exec();
+  async findOneEmail(email: string): Promise<ResponseCommon<User>> {
+    try {
+      const userDetails = await this.userModel.findOne({ email }).exec();
+      return ResponseHelper.success(userDetails);
+    } catch {
+      throw ResponseHelper.error(`Không tìm thấy email ${email}`);
+    }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<ResponseType<IUser>> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<ResponseCommon<User>> {
     const updateAt = new Date();
-    const existingCat = await this.userModel
+    const userDetails = await this.userModel
       .findOneAndUpdate({ _id: id }, { ...updateUserDto, updateAt }, { new: true })
       .exec();
 
-    if (!existingCat) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+    if (!userDetails) {
+      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
     }
-    return new ResponseData(existingCat, HttpStatus.OK, ServerMessage.OK);
+    return ResponseHelper.success(userDetails);
   }
 
-  async delete(id: string): Promise<ResponseType<IUser>> {
+  async delete(id: string): Promise<ResponseCommon<User>> {
     try {
-      const deletedUser = await this.userModel.findOneAndDelete({ _id: id }).exec();
-      return new ResponseData(deletedUser, HttpStatus.OK, ServerMessage.OK);
+      const userDetails = await this.userModel.findOneAndDelete({ _id: id }).exec();
+      return ResponseHelper.success(userDetails);
     } catch {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
     }
+  }
+
+  //search params
+  private buildSearchQuery(searchCriteria: Partial<ParamsUserDto>) {
+    const query: any = {};
+    if (searchCriteria.username) {
+      query.username = { $regex: searchCriteria.username, $options: 'i' };
+    }
+    console.log(searchCriteria.isActive);
+
+    if (typeof searchCriteria.isActive === 'boolean') {
+      query.isActive = searchCriteria.isActive; // Gán trực tiếp boolean true/false
+    }
+
+    return query;
   }
 }

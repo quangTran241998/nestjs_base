@@ -1,5 +1,4 @@
-import { Document } from 'mongoose';
-import { Role } from 'src/modules/auth/roles/roles.enum';
+import { ROLE } from 'src/modules/auth/roles/roles.enum';
 
 export interface IUser {
   username: string;
@@ -7,7 +6,7 @@ export interface IUser {
   phoneNumber: string;
   address: string;
   isActive: boolean;
-  roles: Role[];
+  role: ROLE[];
   createdAt: Date;
   updateAt: Date;
   age: number;

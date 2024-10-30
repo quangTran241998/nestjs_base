@@ -1,24 +1,22 @@
-export class ResponseData {
-  statusCode: number;
-  message: string;
-  result: {
-    data: {} | [];
-    total?: number;
-  };
+import { HttpStatus } from '@nestjs/common';
+import { ResponseCommon } from 'src/interfaces/common';
 
-  constructor(
-    data: {} | [],
-    statusCode: number,
-    message: string,
-    total?: number,
-  ) {
-    this.statusCode = statusCode;
-    this.message = message;
-    this.result = {
-      data: data,
-      total: total,
+export class ResponseHelper {
+  static success<T>(data: T, message = 'success'): ResponseCommon<T> {
+    return {
+      statusCode: HttpStatus.OK,
+      errorCode: 1,
+      message,
+      data,
     };
+  }
 
-    return this;
+  static error(message = 'error', statusCode = HttpStatus.BAD_REQUEST): ResponseCommon<null> {
+    return {
+      statusCode,
+      errorCode: 0,
+      message,
+      data: null,
+    };
   }
 }

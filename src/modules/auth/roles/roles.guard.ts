@@ -1,16 +1,9 @@
 // src/auth/roles/roles.guard.ts
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from 'src/constant/common';
 import { ROLES_KEY } from './roles.decorator';
-import { Role } from './roles.enum';
+import { ROLE } from './roles.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -20,7 +13,7 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+    const requiredRoles = this.reflector.getAllAndOverride<ROLE[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -38,7 +31,7 @@ export class RolesGuard implements CanActivate {
     try {
       const decoded = this.jwtService.decode(token);
 
-      const userRoles = decoded.roles;
+      const userRoles = decoded.role;
       return requiredRoles.some((role) => userRoles.includes(role));
     } catch (error) {
       throw new ForbiddenException();

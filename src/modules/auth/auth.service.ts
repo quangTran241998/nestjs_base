@@ -2,12 +2,11 @@
 import { Inject, Injectable, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from '../user/user.service';
+import { jwtConstants } from 'src/constant/common';
+import { PayloadToken } from 'src/constant/type';
 import { LoginUserDto } from 'src/dto/user.dto';
 import { IUser } from 'src/interfaces/user.interface';
-import { PayloadToken } from 'src/constant/type';
-import { jwtConstants } from 'src/constant/common';
-import { MailerService } from '../mail/mail.service';
+import { UsersService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -18,19 +17,18 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, password: string): Promise<IUser> {
-    const user: IUser = await this.usersService.findOne(username);
-
-    if (!user.isEmailVerified) {
+    const user = await this.usersService.findOne(username);
+    if (!user.data) {
       throw new UnauthorizedException('You not verify email');
     }
 
-    if (!user.isActive) {
+    if (!user.data.isActive) {
       throw new UnauthorizedException('Account is locked');
     }
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (user.data && (await bcrypt.compare(password, user.data.password))) {
       //@ts-ignore
-      const { password, ...result } = user.toObject();
+      const { password, ...result } = user.data.toObject();
       return result;
     }
     return null;
@@ -44,9 +42,9 @@ export class AuthService {
     }
 
     const payload = {
-      username: user.username,
       id: user._id,
-      roles: user.roles,
+      username: user.username,
+      role: user.role,
       isActive: user?.isActive,
       isEmailVerified: user.isEmailVerified,
       email: user.email,
@@ -67,7 +65,7 @@ export class AuthService {
       const payload = {
         username: decode.username,
         id: decode._id,
-        roles: decode.roles,
+        role: decode.role,
         isActive: decode?.isActive,
         isEmailVerified: decode.isEmailVerified,
         email: decode.email,
@@ -90,11 +88,7 @@ export class AuthService {
     return this.jwtService.sign(payload, { secret: jwtConstants.secret, expiresIn: expiresIn ?? '30m' });
   }
 
-  decodeToken(token: string) {
-    return this.jwtService.decode(token);
-  }
-
-  verifyToken(token: string): Promise<PayloadToken> {
+  decodeToken(token: string): Promise<PayloadToken> {
     return this.jwtService.verify(token, { secret: jwtConstants.secret });
   }
 
