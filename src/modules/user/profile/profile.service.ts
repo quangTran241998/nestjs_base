@@ -12,7 +12,7 @@ export class ProfileService {
     private authService: AuthService,
   ) {}
 
-  async getProfileUser(token: string) {
+  async getProfileUser(token: string): Promise<ResponseCommon<User>> {
     const userDecode = await this.authService.decodeToken(token);
     const userInfo = await this.usersService.findOne(userDecode.username);
 

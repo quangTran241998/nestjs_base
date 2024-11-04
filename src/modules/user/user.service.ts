@@ -1,12 +1,5 @@
 // src/users/users.service.ts
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  forwardRef,
-} from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
@@ -53,15 +46,15 @@ export class UsersService {
     }
   }
 
-  async create(createUserDto: CreateUserDto): Promise<{ urlConfirm: string }> {
+  async create(createUserDto: CreateUserDto): Promise<ResponseCommon<{ urlConfirm: string }>> {
     const { email, username } = createUserDto;
     const isCheckUserExit = await this.findOne(username);
     const isCheckEmailExit = await this.findOneEmail(email);
 
     if (isCheckUserExit.data) {
-      throw new HttpException('Tài khoản đã tồn tại', HttpStatus.BAD_REQUEST);
+      throw ResponseHelper.error(`Tài khoản đã tồn tại`);
     } else if (isCheckEmailExit.data) {
-      throw new HttpException('Email đã tồn tại', HttpStatus.BAD_REQUEST);
+      throw ResponseHelper.error(`Email đã tồn tại`);
     } else {
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
@@ -73,9 +66,9 @@ export class UsersService {
       try {
         const urlConfirm = await this.mailerService.sendVerificationEmail(email, token);
         createUser.save();
-        return { urlConfirm: urlConfirm };
+        return ResponseHelper.success({ urlConfirm: urlConfirm });
       } catch {
-        throw new InternalServerErrorException('Error sent mail');
+        throw ResponseHelper.error(`Đã có lỗi xảy ra`);
       }
     }
   }
@@ -85,7 +78,7 @@ export class UsersService {
       const userDetails = await this.userModel.findOne({ username }).exec();
       return ResponseHelper.success(userDetails);
     } catch {
-      throw ResponseHelper.error(`Không tìm thấy user name ${username}`);
+      throw ResponseHelper.error(`Không tìm thấy username ${username}`);
     }
   }
 
@@ -125,10 +118,9 @@ export class UsersService {
     if (searchCriteria.username) {
       query.username = { $regex: searchCriteria.username, $options: 'i' };
     }
-    console.log(searchCriteria.isActive);
 
     if (typeof searchCriteria.isActive === 'boolean') {
-      query.isActive = searchCriteria.isActive; // Gán trực tiếp boolean true/false
+      query.isActive = searchCriteria.isActive;
     }
 
     return query;

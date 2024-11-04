@@ -1,8 +1,5 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { AuthService } from 'src/modules/auth/auth.service';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../user/user.service';
 
 @Injectable()
 export class MailerService {
@@ -20,12 +17,6 @@ export class MailerService {
       rejectUnauthorized: false,
     },
   });
-
-  constructor(
-    @Inject(forwardRef(() => UsersService))
-    private userService: UsersService,
-  ) {}
-  //tqte osma uydw clhk
 
   async sendVerificationEmail(email: string, token: string) {
     const url = `${process.env.BASE_URL}/auth/confirm?token=${token}`;
