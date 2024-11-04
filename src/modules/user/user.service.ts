@@ -80,7 +80,7 @@ export class UsersService {
     }
   }
 
-  async findOne(username: string): Promise<ResponseCommon<User>> {
+  async findOne(username: string): Promise<ResponseCommon<UserDocument>> {
     try {
       const userDetails = await this.userModel.findOne({ username }).exec();
       return ResponseHelper.success(userDetails);

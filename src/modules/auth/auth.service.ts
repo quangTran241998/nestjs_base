@@ -27,7 +27,6 @@ export class AuthService {
     }
 
     if (user.data && (await bcrypt.compare(password, user.data.password))) {
-      //@ts-ignore
       const { password, ...result } = user.data.toObject();
       return result;
     }
