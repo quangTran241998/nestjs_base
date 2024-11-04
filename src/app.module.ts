@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -10,6 +10,8 @@ import { UsersModule } from './modules/user/user.module';
 import { I18nModule, I18nJsonLoader, QueryResolver, HeaderResolver, CookieResolver } from 'nestjs-i18n';
 import * as path from 'path';
 import { ResponseHelperI18n } from './services/responseI18n.service';
+import { LoggerMiddleware } from './middleware/logger.middleware';
+import { AcceptLanguageResolver } from 'nestjs-i18n';
 
 @Module({
   imports: [
@@ -21,11 +23,7 @@ import { ResponseHelperI18n } from './services/responseI18n.service';
         watch: true,
       },
       loader: I18nJsonLoader,
-      resolvers: [
-        { use: QueryResolver, options: ['lang', 'locale', 'l'] }, // Lấy ngôn ngữ từ query parameter (ví dụ: ?lang=vi)
-        new HeaderResolver(['accept-language']), // Lấy ngôn ngữ từ header Accept-Language
-        new CookieResolver(['lang']), // Lấy ngôn ngữ từ cookie (nếu có)
-      ],
+      resolvers: [{ use: AcceptLanguageResolver, options: { matchType: 'strict' } }],
     }),
     CatsModule,
     ArticleModule,
@@ -38,4 +36,10 @@ import { ResponseHelperI18n } from './services/responseI18n.service';
   providers: [AppService, ResponseHelperI18n],
   exports: [ResponseHelperI18n],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware) // Sử dụng LoggerMiddleware
+      .forRoutes('*'); // Áp dụng cho tất cả các routes, có thể tùy chỉnh cho route cụ thể
+  }
+}
