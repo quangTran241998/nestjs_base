@@ -1,6 +1,5 @@
 export interface ResponseCommon<T> {
   statusCode: number;
-  errorCode: 0 | 1;
   message: string | unknown;
   data: T;
 }

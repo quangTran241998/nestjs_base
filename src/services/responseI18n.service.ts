@@ -14,7 +14,6 @@ export class ResponseHelperI18n {
     const message = await this.i18n.translate(messageKey, { lang });
     return {
       statusCode: HttpStatus.OK,
-      errorCode: 1,
       message,
       data,
     };
@@ -28,7 +27,6 @@ export class ResponseHelperI18n {
     const message = await this.i18n.translate(messageKey, { lang });
     return {
       statusCode,
-      errorCode: 0,
       message,
       data: null,
     };

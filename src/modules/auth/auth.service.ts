@@ -1,5 +1,5 @@
 // src/auth/auth.service.ts
-import { Inject, Injectable, UnauthorizedException, forwardRef } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { jwtConstants } from 'src/constant/common';
@@ -7,6 +7,7 @@ import { PayloadToken } from 'src/constant/type';
 import { LoginUserDto } from 'src/dto/user.dto';
 import { IUser } from 'src/interfaces/user.interface';
 import { UsersService } from '../user/user.service';
+import { ResponseHelper } from 'src/services/response.service';
 
 @Injectable()
 export class AuthService {
@@ -87,8 +88,9 @@ export class AuthService {
     return this.jwtService.sign(payload, { secret: jwtConstants.secret, expiresIn: expiresIn ?? '30m' });
   }
 
-  decodeToken(token: string): Promise<PayloadToken> {
-    return this.jwtService.verify(token, { secret: jwtConstants.secret });
+  async decodeToken(token: string): Promise<PayloadToken> {
+    const userDecode = await this.jwtService.verify(token, { secret: jwtConstants.secret });
+    return userDecode;
   }
 
   tests() {

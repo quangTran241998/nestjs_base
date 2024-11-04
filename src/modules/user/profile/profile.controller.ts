@@ -21,9 +21,4 @@ export class ProfileController {
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<ResponseCommon<User>> {
     return this.profileService.updateProfile(id, updateUserDto);
   }
-
-  @Delete(':id')
-  async delete(@Param('id') id: string) {
-    return this.profileService.deleteProfile(id);
-  }
 }

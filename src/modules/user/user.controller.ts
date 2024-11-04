@@ -1,4 +1,5 @@
-import { Controller, Delete, Get, Param, Query } from '@nestjs/common';
+import { JwtAuthGuard } from './../auth/jwt-auth.guard';
+import { Controller, Delete, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ParamsUserDto } from 'src/dto/user.dto';
 import { ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
 import { User } from 'src/schemas/user.schema';
@@ -7,7 +8,7 @@ import { ROLE } from '../auth/roles/roles.enum';
 import { UsersService } from './user.service';
 
 @Controller('users')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UpdateUserDto } from 'src/dto/user.dto';
 import { ResponseCommon } from 'src/interfaces/common';
+import { AuthService } from 'src/modules/auth/auth.service';
 import { User } from 'src/schemas/user.schema';
 import { UsersService } from '../user.service';
 
@@ -9,23 +9,17 @@ import { UsersService } from '../user.service';
 export class ProfileService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
+    private authService: AuthService,
   ) {}
 
   async getProfileUser(token: string) {
-    const decode = await this.jwtService.decode(token);
-    const username = decode.username;
+    const userDecode = await this.authService.decodeToken(token);
+    const userInfo = await this.usersService.findOne(userDecode.username);
 
-    const user = this.usersService.findOne(username);
-
-    return user;
+    return userInfo;
   }
 
   async updateProfile(id: string, updateUserDto: UpdateUserDto): Promise<ResponseCommon<User>> {
     return this.usersService.update(id, updateUserDto);
-  }
-
-  async deleteProfile(id: string): Promise<ResponseCommon<User>> {
-    return this.usersService.delete(id);
   }
 }
