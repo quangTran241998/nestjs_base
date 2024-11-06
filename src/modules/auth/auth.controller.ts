@@ -1,10 +1,22 @@
 // src/auth/auth.controller.ts
-import { Controller, Post, Body, ValidationPipe, UsePipes, Get, Query, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  ValidationPipe,
+  UsePipes,
+  Get,
+  Query,
+  UnauthorizedException,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto, RefreshTokenDto } from 'src/dto/user.dto';
 import { UsersService } from '../user/user.service';
+import { LoggingInterceptor } from 'src/interceptor/loggingInterceptor';
 
 @Controller('auth')
+@UseInterceptors(LoggingInterceptor)
 export class AuthController {
   constructor(
     private authService: AuthService,
