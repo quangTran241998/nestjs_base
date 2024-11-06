@@ -1,14 +1,18 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateCatDto, ParamsCats, UpdateCatDto } from 'src/dto/cats.dto';
 import { ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
-import { ResponseHelper } from 'src/services/response.service';
 import { Cat, CatDocument } from 'src/schemas/cats.schema';
+import { ResponseHelper } from '../response-common/responseCommon.service';
 
 @Injectable()
 export class CatsService {
-  constructor(@InjectModel('Cat') private catModel: Model<CatDocument>) {}
+  constructor(
+    @InjectModel(Cat.name)
+    private catModel: Model<CatDocument>,
+    private readonly responseHelper: ResponseHelper,
+  ) {}
 
   async findAll(filters: ParamsCats, userId: string): Promise<ResponseCommon<ResponseDataListCommon<Cat[]>>> {
     const { page: pageParam, size: sizeParam, ...searchCriteria } = filters;
@@ -26,32 +30,32 @@ export class CatsService {
         this.catModel.find(query).skip(offset).limit(size).exec(),
         this.catModel.countDocuments(query).exec(),
       ]);
-      return ResponseHelper.success({
+      return this.responseHelper.success({
         data: data,
         page: page,
         size: size,
         total: count,
       });
     } catch {
-      throw ResponseHelper.error(`Đã có lỗi xảy ra`);
+      throw this.responseHelper.error(`Đã có lỗi xảy ra`);
     }
   }
 
   async findOne(id: string): Promise<ResponseCommon<Cat>> {
     const catDetails = await this.catModel.findOne({ _id: id }).exec();
     if (!catDetails) {
-      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
+      throw this.responseHelper.error(`Không tìm thấy id ${id}`);
     }
-    return ResponseHelper.success(catDetails);
+    return this.responseHelper.success(catDetails);
   }
 
   async create(createCatDto: CreateCatDto, userId: string): Promise<ResponseCommon<Cat>> {
     try {
       const createdCat = new this.catModel({ ...createCatDto, userId: userId });
       await createdCat.save();
-      return ResponseHelper.success(createdCat);
+      return this.responseHelper.success(createdCat);
     } catch {
-      throw ResponseHelper.error(`Đã có lỗi xảy ra`);
+      throw this.responseHelper.error(`Đã có lỗi xảy ra`);
     }
   }
 
@@ -59,9 +63,9 @@ export class CatsService {
     try {
       const catUpdate = await this.catModel.findOneAndUpdate({ _id: id }, updateCatDto, { new: true }).exec();
 
-      return ResponseHelper.success(catUpdate);
+      return this.responseHelper.success(catUpdate);
     } catch {
-      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
+      throw this.responseHelper.error(`Không tìm thấy id ${id}`);
     }
   }
 
@@ -69,9 +73,9 @@ export class CatsService {
     try {
       const catDelete = await this.catModel.findOneAndDelete({ _id: id }).exec();
 
-      return ResponseHelper.success(catDelete);
+      return this.responseHelper.success(catDelete);
     } catch {
-      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
+      throw this.responseHelper.error(`Không tìm thấy id ${id}`);
     }
   }
 

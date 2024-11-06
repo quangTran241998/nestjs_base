@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { RolesGuard } from './roles/roles.guard';
+import { I18nModule } from 'nestjs-i18n';
 
 @Module({
   imports: [

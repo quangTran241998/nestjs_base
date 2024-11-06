@@ -1,4 +1,3 @@
-// src/users/users.service.ts
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
@@ -6,9 +5,9 @@ import { Model } from 'mongoose';
 import { CreateUserDto, ParamsUserDto, UpdateUserDto } from 'src/dto/user.dto';
 import { ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
 import { User, UserDocument } from 'src/schemas/user.schema';
-import { ResponseHelper } from 'src/services/response.service';
 import { AuthService } from '../auth/auth.service';
 import { MailerService } from '../mail/mail.service';
+import { ResponseHelper } from '../response-common/responseCommon.service';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +18,7 @@ export class UsersService {
     private userModel: Model<UserDocument>,
     private authService: AuthService,
     private mailerService: MailerService,
+    private readonly responseHelper: ResponseHelper,
   ) {}
 
   async findAll(filters: ParamsUserDto): Promise<ResponseCommon<ResponseDataListCommon<User[]>>> {
@@ -35,14 +35,14 @@ export class UsersService {
         this.userModel.find(query).skip(offset).limit(size).exec(),
         this.userModel.countDocuments(query).exec(),
       ]);
-      return ResponseHelper.success({
+      return this.responseHelper.success({
         data: data,
         page: page,
         size: size,
         total: count,
       });
     } catch {
-      throw ResponseHelper.error(`Đã có lỗi xảy ra`);
+      throw this.responseHelper.error(`Đã có lỗi xảy ra`);
     }
   }
 
@@ -52,9 +52,9 @@ export class UsersService {
     const isCheckEmailExit = await this.findOneEmail(email);
 
     if (isCheckUserExit.data) {
-      throw ResponseHelper.error(`Tài khoản đã tồn tại`);
+      throw await this.responseHelper.error(`Tài khoản đã tồn tại`);
     } else if (isCheckEmailExit.data) {
-      throw ResponseHelper.error(`Email đã tồn tại`);
+      throw await this.responseHelper.error(`Email đã tồn tại`);
     } else {
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
@@ -66,9 +66,9 @@ export class UsersService {
       try {
         const urlConfirm = await this.mailerService.sendVerificationEmail(email, token);
         createUser.save();
-        return ResponseHelper.success({ urlConfirm: urlConfirm });
+        return this.responseHelper.success({ urlConfirm: urlConfirm });
       } catch {
-        throw ResponseHelper.error(`Đã có lỗi xảy ra`);
+        throw this.responseHelper.error(`Đã có lỗi xảy ra`);
       }
     }
   }
@@ -76,18 +76,18 @@ export class UsersService {
   async findOne(username: string): Promise<ResponseCommon<UserDocument>> {
     try {
       const userDetails = await this.userModel.findOne({ username }).exec();
-      return ResponseHelper.success(userDetails);
+      return this.responseHelper.success(userDetails);
     } catch {
-      throw ResponseHelper.error(`Không tìm thấy username ${username}`);
+      throw this.responseHelper.error(`Không tìm thấy username ${username}`);
     }
   }
 
   async findOneEmail(email: string): Promise<ResponseCommon<User>> {
     try {
       const userDetails = await this.userModel.findOne({ email }).exec();
-      return ResponseHelper.success(userDetails);
+      return this.responseHelper.success(userDetails);
     } catch {
-      throw ResponseHelper.error(`Không tìm thấy email ${email}`);
+      throw this.responseHelper.error(`Không tìm thấy email ${email}`);
     }
   }
 
@@ -98,17 +98,17 @@ export class UsersService {
       .exec();
 
     if (!userDetails) {
-      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
+      throw this.responseHelper.error(`Không tìm thấy id ${id}`);
     }
-    return ResponseHelper.success(userDetails);
+    return this.responseHelper.success(userDetails);
   }
 
   async delete(id: string): Promise<ResponseCommon<User>> {
     try {
       const userDetails = await this.userModel.findOneAndDelete({ _id: id }).exec();
-      return ResponseHelper.success(userDetails);
+      return this.responseHelper.success(userDetails);
     } catch {
-      throw ResponseHelper.error(`Không tìm thấy id ${id}`);
+      throw this.responseHelper.error(`Không tìm thấy id ${id}`);
     }
   }
 

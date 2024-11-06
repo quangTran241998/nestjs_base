@@ -7,7 +7,6 @@ import { PayloadToken } from 'src/constant/type';
 import { LoginUserDto } from 'src/dto/user.dto';
 import { IUser } from 'src/interfaces/user.interface';
 import { UsersService } from '../user/user.service';
-import { ResponseHelper } from 'src/services/response.service';
 
 @Injectable()
 export class AuthService {

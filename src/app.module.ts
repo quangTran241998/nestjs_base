@@ -1,17 +1,17 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AcceptLanguageResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n';
+import * as path from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { LoggerMiddleware } from './middleware/logger.middleware';
 import { ArticleModule } from './modules/article/article.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CatsModule } from './modules/cats/cats.module';
+import { ResponseCommonModule } from './modules/response-common/responseCommon.module';
 import { ProfileModule } from './modules/user/profile/profile.module';
 import { UsersModule } from './modules/user/user.module';
-import { I18nModule, I18nJsonLoader, QueryResolver, HeaderResolver, CookieResolver } from 'nestjs-i18n';
-import * as path from 'path';
 import { ResponseHelperI18n } from './services/responseI18n.service';
-import { LoggerMiddleware } from './middleware/logger.middleware';
-import { AcceptLanguageResolver } from 'nestjs-i18n';
 
 @Module({
   imports: [
@@ -30,6 +30,7 @@ import { AcceptLanguageResolver } from 'nestjs-i18n';
     AuthModule,
     ProfileModule,
     UsersModule,
+    ResponseCommonModule,
   ],
 
   controllers: [AppController],
