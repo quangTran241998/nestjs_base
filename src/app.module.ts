@@ -11,10 +11,14 @@ import { CatsModule } from './modules/cats/cats.module';
 import { ProfileModule } from './modules/user/profile/profile.module';
 import { UsersModule } from './modules/user/user.module';
 import { ResponseHelperI18n } from './services/responseI18n.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGODB_URI ?? 'mongodb://localhost:27017/test'),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRoot(process.env.MONGODB_URI),
     I18nModule.forRoot({
       fallbackLanguage: 'vi',
       loaderOptions: {
