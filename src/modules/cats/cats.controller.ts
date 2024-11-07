@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, Post, Put, Query, UseFilters, UseGuards } from '@nestjs/common';
 import { CreateCatDto, ParamsCats, UpdateCatDto } from 'src/dto/cats.dto';
 // import { Cat } from 'src/interfaces/cat.interface';
 import { ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
@@ -8,9 +8,12 @@ import { Roles } from '../auth/roles/roles.decorator';
 import { ROLE } from '../auth/roles/roles.enum';
 import { CatsService } from './cats.service';
 import { Cat, CatDocument } from 'src/schemas/cats.schema';
+import { JwtExpiredExceptionFilter } from 'src/common/exception/jwt-expired-exception.filter';
 
 @Controller('cats')
 @UseGuards(JwtAuthGuard)
+@UseFilters(JwtExpiredExceptionFilter)
+
 // @UseGuards(JwtAuthGuard, RolesGuard)
 export class CatsController {
   constructor(

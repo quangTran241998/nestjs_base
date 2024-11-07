@@ -3,6 +3,7 @@
     "success": "Operation completed successfully.",
     "error": "An error occurred.",
     "notPermisson": "Not permission",
-    "notToken": "Not token"
+    "notToken": "Not token",
+    "isvalidToken": "Isvalid token"
   }
 }

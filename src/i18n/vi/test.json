@@ -3,6 +3,7 @@
     "success": "Thao tác thành công.",
     "error": "Đã xảy ra lỗi.",
     "notPermisson": "Bạn không có quyền",
-    "notToken": "Bạn chưa có token"
+    "notToken": "Bạn chưa có token",
+    "isvalidToken": "Token không hợp lệ"
   }
 }

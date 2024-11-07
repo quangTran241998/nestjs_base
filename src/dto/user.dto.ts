@@ -3,7 +3,7 @@ import { IsBoolean, IsNumber, IsOptional, IsString, MinLength, IsEmail, IsNotEmp
 import { ROLE } from 'src/modules/auth/roles/roles.enum';
 import { PaginationDto } from './common.dto';
 import { Transform } from 'class-transformer';
-import { convertParamStringToBoolean } from 'src/helpers/common';
+import { convertParamStringToBoolean } from 'src/common/helpers/common';
 
 export class CreateUserDto {
   @IsString()

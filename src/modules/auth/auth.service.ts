@@ -7,6 +7,7 @@ import { PayloadToken } from 'src/constant/type';
 import { LoginUserDto } from 'src/dto/user.dto';
 import { IUser } from 'src/interfaces/user.interface';
 import { UsersService } from '../user/user.service';
+import { ResponseHelper } from '../response-common/responseCommon.service';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
+    private readonly responseHelper: ResponseHelper,
   ) {}
 
   async validateUser(username: string, password: string): Promise<IUser> {
@@ -88,8 +90,12 @@ export class AuthService {
   }
 
   async decodeToken(token: string): Promise<PayloadToken> {
-    const userDecode = await this.jwtService.verify(token, { secret: jwtConstants.secret });
-    return userDecode;
+    try {
+      const userDecode = await this.jwtService.verify(token, { secret: jwtConstants.secret });
+      return userDecode;
+    } catch (error) {
+      throw await this.responseHelper.error('test.response.isvalidToken', HttpStatus.UNAUTHORIZED);
+    }
   }
 
   tests() {
