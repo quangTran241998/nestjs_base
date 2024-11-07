@@ -1,7 +1,8 @@
+import { AuthService } from 'src/modules/auth/auth.service';
 // src/auth/roles/roles.guard.ts
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
+import { ResponseHelper } from 'src/modules/response-common/responseCommon.service';
 import { ROLES_KEY } from './roles.decorator';
 import { ROLE } from './roles.enum';
 
@@ -9,14 +10,16 @@ import { ROLE } from './roles.enum';
 export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private jwtService: JwtService,
+    private authService: AuthService,
+    private readonly responseHelper: ResponseHelper,
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<ROLE[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
+
     if (!requiredRoles) {
       return true;
     }
@@ -25,16 +28,20 @@ export class RolesGuard implements CanActivate {
     const token = request.headers.authorization?.split(' ')[1];
 
     if (!token) {
-      throw new UnauthorizedException('Authorization token is missing');
+      throw await this.responseHelper.error('test.response.notToken', HttpStatus.UNAUTHORIZED);
     }
 
     try {
-      const decoded = this.jwtService.decode(token);
-
+      const decoded = await this.authService.decodeToken(token);
       const userRoles = decoded.role;
-      return requiredRoles.some((role) => userRoles.includes(role));
+      const isPermisson = requiredRoles.some((role) => userRoles.includes(role));
+      if (isPermisson) {
+        return isPermisson;
+      } else {
+        throw await this.responseHelper.error('test.response.notPermisson', HttpStatus.FORBIDDEN);
+      }
     } catch (error) {
-      throw new ForbiddenException();
+      throw error;
     }
   }
 }

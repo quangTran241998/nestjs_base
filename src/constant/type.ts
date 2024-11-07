@@ -17,7 +17,7 @@ export type MetaParams = {
 export type PayloadToken = {
   username: string;
   id: string;
-  role: ROLE[];
+  role: ROLE;
   isActive: boolean;
   isEmailVerified: boolean;
   email: string;

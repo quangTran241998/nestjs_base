@@ -8,7 +8,6 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { ArticleModule } from './modules/article/article.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CatsModule } from './modules/cats/cats.module';
-import { ResponseCommonModule } from './modules/response-common/responseCommon.module';
 import { ProfileModule } from './modules/user/profile/profile.module';
 import { UsersModule } from './modules/user/user.module';
 import { ResponseHelperI18n } from './services/responseI18n.service';
@@ -17,7 +16,7 @@ import { ResponseHelperI18n } from './services/responseI18n.service';
   imports: [
     MongooseModule.forRoot(process.env.MONGODB_URI ?? 'mongodb://localhost:27017/test'),
     I18nModule.forRoot({
-      fallbackLanguage: 'en',
+      fallbackLanguage: 'vi',
       loaderOptions: {
         path: path.join(__dirname, '../src/i18n/'),
         watch: true,
@@ -30,7 +29,6 @@ import { ResponseHelperI18n } from './services/responseI18n.service';
     AuthModule,
     ProfileModule,
     UsersModule,
-    ResponseCommonModule,
   ],
 
   controllers: [AppController],

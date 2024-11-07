@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { RolesGuard } from './roles/roles.guard';
 import { I18nModule } from 'nestjs-i18n';
+import { ResponseCommonModule } from '../response-common/responseCommon.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { I18nModule } from 'nestjs-i18n';
     JwtModule.register({
       secret: jwtConstants.secret,
     }),
+    ResponseCommonModule,
   ],
   providers: [
     AuthService,
