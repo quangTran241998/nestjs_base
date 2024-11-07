@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateCatDto, ParamsCats, UpdateCatDto } from 'src/dto/cats.dto';
 import { ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
 import { Cat, CatDocument } from 'src/schemas/cats.schema';
 import { ResponseHelper } from '../response-common/responseCommon.service';
+import { PROVIDES_KEY } from 'src/constant/enum';
 
 @Injectable()
 export class CatsService {
@@ -12,9 +13,12 @@ export class CatsService {
     @InjectModel(Cat.name)
     private catModel: Model<CatDocument>,
     private readonly responseHelper: ResponseHelper,
+    @Inject(PROVIDES_KEY.TEST) private readonly config: { appName: string; version: string },
   ) {}
 
   async findAll(filters: ParamsCats, userId: string): Promise<ResponseCommon<ResponseDataListCommon<Cat[]>>> {
+    console.log(this.config);
+
     const { page: pageParam, size: sizeParam, ...searchCriteria } = filters;
     const query = this.buildSearchQuery(searchCriteria);
 

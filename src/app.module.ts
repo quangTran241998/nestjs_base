@@ -10,8 +10,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CatsModule } from './modules/cats/cats.module';
 import { ProfileModule } from './modules/user/profile/profile.module';
 import { UsersModule } from './modules/user/user.module';
-import { ResponseHelperI18n } from './services/responseI18n.service';
 import { ConfigModule } from '@nestjs/config';
+import { ResponseCommonModule } from './modules/response-common/responseCommon.module';
 
 @Module({
   imports: [
@@ -33,11 +33,12 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     ProfileModule,
     UsersModule,
+    ResponseCommonModule,
   ],
 
   controllers: [AppController],
-  providers: [AppService, ResponseHelperI18n],
-  exports: [ResponseHelperI18n],
+  providers: [AppService],
+  exports: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

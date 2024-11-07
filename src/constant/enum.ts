@@ -7,3 +7,7 @@ export enum ServerMessage {
   OK = 'Server Response Success!',
   ERROR = 'Server Internal Error!',
 }
+
+export enum PROVIDES_KEY {
+  TEST = 'TEST',
+}

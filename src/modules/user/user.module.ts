@@ -6,6 +6,7 @@ import { MailerService } from '../mail/mail.service';
 import { UsersController } from './user.controller';
 import { UsersService } from './user.service';
 import { ResponseCommonModule } from '../response-common/responseCommon.module';
+import { PROVIDES_KEY } from 'src/constant/enum';
 
 @Module({
   imports: [

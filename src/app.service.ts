@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ResponseHelperI18n } from './services/responseI18n.service';
+import { ResponseHelper } from './modules/response-common/responseCommon.service';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly responseHelperI18n: ResponseHelperI18n) {}
+  constructor(private readonly responseHelper: ResponseHelper) {}
   getHello() {
-    return this.responseHelperI18n.success('123');
+    return this.responseHelper.success('123');
   }
 }
