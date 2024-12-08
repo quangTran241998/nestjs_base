@@ -5,9 +5,9 @@ import * as bcrypt from 'bcrypt';
 import { jwtConstants } from 'src/constant/common';
 import { PayloadToken } from 'src/constant/type';
 import { LoginUserDto } from 'src/dto/user.dto';
-import { IUser } from 'src/interfaces/user.interface';
 import { UsersService } from '../user/user.service';
 import { ResponseHelper } from '../response-common/responseCommon.service';
+import { UserDocument } from 'src/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
     private readonly responseHelper: ResponseHelper,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<IUser> {
+  async validateUser(username: string, password: string): Promise<UserDocument> {
     const user = await this.usersService.findOne(username);
     if (!user.data) {
       throw new UnauthorizedException('You not verify email');

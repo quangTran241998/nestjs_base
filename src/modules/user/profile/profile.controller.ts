@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Headers, Param, Put, UseGuards } from '@nestjs/common';
 import { UpdateUserDto } from 'src/dto/user.dto';
 import { ResponseCommon } from 'src/interfaces/common';
-import { IUser } from 'src/interfaces/user.interface';
 import { JwtAuthGuard } from 'src/modules/auth/jwt-auth.guard';
 import { ProfileService } from './profile.service';
 import { User } from 'src/schemas/user.schema';

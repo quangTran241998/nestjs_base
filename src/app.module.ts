@@ -5,7 +5,6 @@ import * as path from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggerMiddleware } from './middleware/logger.middleware';
-import { ArticleModule } from './modules/article/article.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CatsModule } from './modules/cats/cats.module';
 import { ProfileModule } from './modules/user/profile/profile.module';
@@ -29,7 +28,6 @@ import { ResponseCommonModule } from './modules/response-common/responseCommon.m
       resolvers: [{ use: AcceptLanguageResolver, options: { matchType: 'strict' } }],
     }),
     CatsModule,
-    ArticleModule,
     AuthModule,
     ProfileModule,
     UsersModule,
