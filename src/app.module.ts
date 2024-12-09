@@ -6,7 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { AuthModule } from './modules/auth/auth.module';
-import { CatsModule } from './modules/cats/cats.module';
+import { CatsModule } from './modules/cat/cat.module';
 import { ProfileModule } from './modules/user/profile/profile.module';
 import { UsersModule } from './modules/user/user.module';
 import { ConfigModule } from '@nestjs/config';
@@ -40,8 +40,6 @@ import { ResponseCommonModule } from './modules/response-common/responseCommon.m
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware) // Sử dụng LoggerMiddleware
-      .forRoutes('*'); // Áp dụng cho tất cả các routes, có thể tùy chỉnh cho route cụ thể
+    consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 }

@@ -11,6 +11,12 @@ export interface ResponseDataListCommon<T> {
   total: number;
 }
 
+export interface PaginationResponse {
+  page: number;
+  size: number;
+  total: number;
+}
+
 export enum STATUS {
   SUCCESS = 1,
   ERROR = 0,

@@ -17,7 +17,7 @@ export class UpdateCatDto {
   color: string;
 }
 
-export class ParamsCats extends PaginationDto {
+export class QueryCats extends PaginationDto {
   @IsOptional()
   @IsString()
   name?: string;

@@ -8,7 +8,7 @@ export class ResponseHelper {
 
   async success<T>(
     data: T,
-    messageKey = 'test.response.success', // Khóa mặc định trong file dịch
+    messageKey = 'test.response.success',
     lang: string = I18nContext.current().lang,
   ): Promise<ResponseCommon<T>> {
     const message = await this.i18n.translate(messageKey, { lang });

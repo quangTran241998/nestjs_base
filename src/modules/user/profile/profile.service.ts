@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateUserDto } from 'src/dto/user.dto';
+import { UpdateUserDto } from 'src/dtos/user.dto';
 import { ResponseCommon } from 'src/interfaces/common';
 import { AuthService } from 'src/modules/auth/auth.service';
 import { User } from 'src/schemas/user.schema';

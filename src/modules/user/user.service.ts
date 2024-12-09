@@ -2,8 +2,8 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
-import { CreateUserDto, ParamsUserDto, UpdateUserDto } from 'src/dto/user.dto';
-import { ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
+import { CreateUserDto, ParamsUserDto, UpdateUserDto } from 'src/dtos/user.dto';
+import { PaginationResponse, ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import { AuthService } from '../auth/auth.service';
 import { MailerService } from '../mail/mail.service';
@@ -21,7 +21,7 @@ export class UsersService {
     private readonly responseHelper: ResponseHelper,
   ) {}
 
-  async findAll(filters: ParamsUserDto): Promise<ResponseCommon<ResponseDataListCommon<User[]>>> {
+  async findAll(filters: ParamsUserDto): Promise<{ users: UserDocument[] } & PaginationResponse> {
     const { page: pageParam, size: sizeParam, ...searchCriteria } = filters;
     const query = this.buildSearchQuery(searchCriteria);
 
@@ -35,12 +35,8 @@ export class UsersService {
         this.userModel.find(query).skip(offset).limit(size).exec(),
         this.userModel.countDocuments(query).exec(),
       ]);
-      return this.responseHelper.success({
-        data: data,
-        page: page,
-        size: size,
-        total: count,
-      });
+
+      return { users: data, total: count, page, size };
     } catch {
       throw this.responseHelper.error(`Đã có lỗi xảy ra`);
     }

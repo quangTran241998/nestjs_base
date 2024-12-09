@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { jwtConstants } from 'src/constant/common';
 import { PayloadToken } from 'src/constant/type';
-import { LoginUserDto } from 'src/dto/user.dto';
+import { LoginUserDto } from 'src/dtos/user.dto';
 import { UsersService } from '../user/user.service';
 import { ResponseHelper } from '../response-common/responseCommon.service';
 import { UserDocument } from 'src/schemas/user.schema';

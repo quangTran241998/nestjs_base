@@ -11,9 +11,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto, LoginUserDto, RefreshTokenDto } from 'src/dto/user.dto';
+import { CreateUserDto, LoginUserDto, RefreshTokenDto } from 'src/dtos/user.dto';
 import { UsersService } from '../user/user.service';
-import { LoggingInterceptor } from 'src/interceptor/loggingInterceptor';
+import { LoggingInterceptor } from 'src/common/interceptor/loggingInterceptor';
 
 @Controller('auth')
 @UseInterceptors(LoggingInterceptor)
