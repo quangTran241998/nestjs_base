@@ -6,11 +6,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { AuthModule } from './modules/auth/auth.module';
-import { CatsModule } from './modules/cat/cat.module';
-import { ProfileModule } from './modules/user/profile/profile.module';
+import { CatModule } from './modules/cat/cat.module';
 import { UsersModule } from './modules/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { ResponseCommonModule } from './modules/response-common/responseCommon.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
@@ -27,10 +27,10 @@ import { ResponseCommonModule } from './modules/response-common/responseCommon.m
       loader: I18nJsonLoader,
       resolvers: [{ use: AcceptLanguageResolver, options: { matchType: 'strict' } }],
     }),
-    CatsModule,
+    CatModule,
     AuthModule,
-    ProfileModule,
     UsersModule,
+    ProfileModule,
     ResponseCommonModule,
   ],
 

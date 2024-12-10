@@ -3,21 +3,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { CreateUserDto, ParamsUserDto, UpdateUserDto } from 'src/dtos/user.dto';
-import { PaginationResponse, ResponseCommon, ResponseDataListCommon } from 'src/interfaces/common';
+import { PaginationResponse } from 'src/interfaces/common';
 import { User, UserDocument } from 'src/schemas/user.schema';
-import { AuthService } from '../auth/auth.service';
-import { MailerService } from '../mail/mail.service';
 import { ResponseHelper } from '../response-common/responseCommon.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
-    @Inject(forwardRef(() => AuthService))
-    @Inject(forwardRef(() => MailerService))
     private userModel: Model<UserDocument>,
-    private authService: AuthService,
-    private mailerService: MailerService,
     private readonly responseHelper: ResponseHelper,
   ) {}
 
@@ -42,14 +36,14 @@ export class UsersService {
     }
   }
 
-  async create(createUserDto: CreateUserDto): Promise<ResponseCommon<{ urlConfirm: string }>> {
+  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     const { email, username } = createUserDto;
-    const isCheckUserExit = await this.findOne(username);
+    const isCheckUserExit = await this.findOneByUsername(username);
     const isCheckEmailExit = await this.findOneEmail(email);
 
-    if (isCheckUserExit.data) {
+    if (isCheckUserExit) {
       throw await this.responseHelper.error(`Tài khoản đã tồn tại`);
-    } else if (isCheckEmailExit.data) {
+    } else if (isCheckEmailExit) {
       throw await this.responseHelper.error(`Email đã tồn tại`);
     } else {
       const salt = await bcrypt.genSalt();
@@ -58,54 +52,38 @@ export class UsersService {
         ...createUserDto,
         password: hashedPassword,
       });
-      const token = this.authService.generateToken({ email: email });
-      try {
-        const urlConfirm = await this.mailerService.sendVerificationEmail(email, token);
-        createUser.save();
-        return this.responseHelper.success({ urlConfirm: urlConfirm });
-      } catch {
-        throw this.responseHelper.error(`Đã có lỗi xảy ra`);
-      }
+      const user = await createUser.save();
+      return user;
     }
   }
 
-  async findOne(username: string): Promise<ResponseCommon<UserDocument>> {
-    try {
-      const userDetails = await this.userModel.findOne({ username }).exec();
-      return this.responseHelper.success(userDetails);
-    } catch {
-      throw this.responseHelper.error(`Không tìm thấy username ${username}`);
-    }
+  async findOne(id: string): Promise<UserDocument> {
+    const userDetails = await this.userModel.findOne({ _id: id }).exec();
+    return userDetails;
   }
 
-  async findOneEmail(email: string): Promise<ResponseCommon<User>> {
-    try {
-      const userDetails = await this.userModel.findOne({ email }).exec();
-      return this.responseHelper.success(userDetails);
-    } catch {
-      throw this.responseHelper.error(`Không tìm thấy email ${email}`);
-    }
+  async findOneByUsername(username: string): Promise<UserDocument> {
+    const userDetails = await this.userModel.findOne({ username }).exec();
+    return userDetails;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<ResponseCommon<User>> {
+  async findOneEmail(email: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ email }).exec();
+    return user;
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserDocument> {
     const updateAt = new Date();
-    const userDetails = await this.userModel
+    const user = await this.userModel
       .findOneAndUpdate({ _id: id }, { ...updateUserDto, updateAt }, { new: true })
       .exec();
 
-    if (!userDetails) {
-      throw this.responseHelper.error(`Không tìm thấy id ${id}`);
-    }
-    return this.responseHelper.success(userDetails);
+    return user;
   }
 
-  async delete(id: string): Promise<ResponseCommon<User>> {
-    try {
-      const userDetails = await this.userModel.findOneAndDelete({ _id: id }).exec();
-      return this.responseHelper.success(userDetails);
-    } catch {
-      throw this.responseHelper.error(`Không tìm thấy id ${id}`);
-    }
+  async delete(id: string): Promise<UserDocument> {
+    const user = await this.userModel.findOneAndDelete({ _id: id }).exec();
+    return user;
   }
 
   //search params

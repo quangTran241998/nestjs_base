@@ -3,15 +3,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Cat, CatSchema } from 'src/schemas/cats.schema';
 import { AuthModule } from '../auth/auth.module';
 import { ResponseCommonModule } from '../response-common/responseCommon.module';
-import { CatsController } from './cat.controller';
-import { CatsService } from './cat.service';
+import { CatController } from './cat.controller';
+import { CatService } from './cat.service';
 import { PROVIDES_KEY } from 'src/constant/enum';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Cat.name, schema: CatSchema }]), AuthModule, ResponseCommonModule],
-  controllers: [CatsController],
+  controllers: [CatController],
   providers: [
-    CatsService,
+    CatService,
     {
       provide: PROVIDES_KEY.TEST,
       useFactory: () => {
@@ -24,5 +24,5 @@ import { PROVIDES_KEY } from 'src/constant/enum';
   ],
   exports: [PROVIDES_KEY.TEST],
 })
-export class CatsModule {}
+export class CatModule {}
 //

@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PROVIDES_KEY } from 'src/constant/enum';
-import { CreateCatDto, QueryCats, UpdateCatDto } from 'src/dtos/cats.dto';
+import { CreateCatDto, QueryCats, UpdateCatDto } from 'src/dtos/cat.dto';
 import { PaginationResponse, ResponseCommon } from 'src/interfaces/common';
 import { Cat, CatDocument } from 'src/schemas/cats.schema';
 import { ResponseHelper } from '../response-common/responseCommon.service';
 
 @Injectable()
-export class CatsService {
+export class CatService {
   constructor(
     @InjectModel(Cat.name)
     private catModel: Model<CatDocument>,

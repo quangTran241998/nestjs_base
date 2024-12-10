@@ -8,28 +8,30 @@ import { LoginUserDto } from 'src/dtos/user.dto';
 import { UsersService } from '../user/user.service';
 import { ResponseHelper } from '../response-common/responseCommon.service';
 import { UserDocument } from 'src/schemas/user.schema';
+import { ProfileService } from '../profile/profile.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(forwardRef(() => UsersService))
+    @Inject(forwardRef(() => ProfileService))
     private usersService: UsersService,
     private jwtService: JwtService,
     private readonly responseHelper: ResponseHelper,
   ) {}
 
   async validateUser(username: string, password: string): Promise<UserDocument> {
-    const user = await this.usersService.findOne(username);
-    if (!user.data) {
-      throw new UnauthorizedException('You not verify email');
+    const user = await this.usersService.findOneByUsername(username);
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('Bạn chưa xác thực email');
     }
 
-    if (!user.data.isActive) {
-      throw new UnauthorizedException('Account is locked');
+    if (!user.isActive) {
+      throw new UnauthorizedException('Tài khoản chưa hoạt động');
     }
 
-    if (user.data && (await bcrypt.compare(password, user.data.password))) {
-      const { password, ...result } = user.data.toObject();
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const { password, ...result } = user.toObject();
       return result;
     }
     return null;
@@ -51,8 +53,14 @@ export class AuthService {
       email: user.email,
     };
 
-    const accessToken = this.jwtService.sign(payload, { secret: jwtConstants.secret, expiresIn: '7d' });
-    const refreshToken = this.jwtService.sign(payload, { secret: jwtConstants.secret, expiresIn: '30d' });
+    const accessToken = this.jwtService.sign(payload, {
+      secret: jwtConstants.secret,
+      expiresIn: jwtConstants.expiredAccessToken,
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: jwtConstants.secret,
+      expiresIn: jwtConstants.expiredRefreshToken,
+    });
 
     return {
       accessToken,
@@ -72,8 +80,8 @@ export class AuthService {
         email: decode.email,
       };
       if (payload) {
-        const accessToken = this.jwtService.sign(payload, { expiresIn: '7d' });
-        const refreshToken = this.jwtService.sign(payload, { expiresIn: '30d' });
+        const accessToken = this.jwtService.sign(payload, { expiresIn: jwtConstants.expiredAccessToken });
+        const refreshToken = this.jwtService.sign(payload, { expiresIn: jwtConstants.expiredRefreshToken });
 
         return {
           accessToken,
@@ -81,7 +89,7 @@ export class AuthService {
         };
       }
     } catch (e) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Token không hợp lệ');
     }
   }
 

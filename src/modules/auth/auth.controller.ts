@@ -1,19 +1,22 @@
 // src/auth/auth.controller.ts
 import {
-  Controller,
-  Post,
   Body,
-  ValidationPipe,
-  UsePipes,
+  Controller,
+  forwardRef,
   Get,
+  Inject,
+  Post,
   Query,
   UnauthorizedException,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CreateUserDto, LoginUserDto, RefreshTokenDto } from 'src/dtos/user.dto';
-import { UsersService } from '../user/user.service';
 import { LoggingInterceptor } from 'src/common/interceptor/loggingInterceptor';
+import { CreateUserDto, LoginUserDto, RefreshTokenDto } from 'src/dtos/user.dto';
+import { UserDocument } from 'src/schemas/user.schema';
+import { UsersService } from '../user/user.service';
+import { AuthService } from './auth.service';
+import { ProfileService } from '../profile/profile.service';
+import { MailerService } from '../mail/mail.service';
 
 @Controller('auth')
 @UseInterceptors(LoggingInterceptor)
@@ -21,6 +24,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
+    private profileService: ProfileService,
   ) {}
 
   @Get('testToken')
@@ -35,16 +39,19 @@ export class AuthController {
     const user = await this.usersService.findOneEmail(decode.email);
 
     if (user) {
-      //@ts-ignore
-      return this.usersService.update(user.data._id, { isEmailVerified: true, isActive: true });
+      return this.usersService.update(user._id, { isEmailVerified: true, isActive: true });
     } else {
       throw new UnauthorizedException();
     }
   }
 
   @Post('signup')
-  async signUp(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async signUp(@Body() createUserDto: CreateUserDto): Promise<UserDocument> {
+    const user = await this.usersService.create(createUserDto);
+    await this.profileService.create({ email: user.email }, user._id);
+    // const token = this.authService.generateToken({ email: user.email });
+    // const urlConfirm = await this.mailerService.sendVerificationEmail(user.email, token);
+    return user;
   }
 
   @Post('login')
